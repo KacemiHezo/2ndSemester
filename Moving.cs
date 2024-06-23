@@ -1,4 +1,6 @@
 internal class KeyboardInputComponent : IInputComponent
+
+
 {    
     private Dictionary<ConsoleKey, Point> directions;
 
@@ -6,11 +8,11 @@ internal class KeyboardInputComponent : IInputComponent
     {
         directions = new()
         {
-            [ConsoleKey.A] = new Point(-1, 0),
-            [ConsoleKey.D] = new Point(1, 0),
-            [ConsoleKey.W] = new Point(0, -1),
-            [ConsoleKey.S] = new Point(0, 1),
-        };
+            directions[ConsoleKey.A] = new Point(-1, 0),
+            directions[ConsoleKey.D] = new Point(1, 0),
+            directions[ConsoleKey.W] = new Point(0, -1),
+            directions[ConsoleKey.S] = new Point(0, 1),
+        }; //
     }
 
     public Point GetDirection()

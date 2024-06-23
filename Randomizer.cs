@@ -9,6 +9,6 @@ class RandomInputComponent : IInputComponent
     
     public Point GetDirection()
     {
-        return new Point(rng.Next(-1, 2),  rng.Next(-1, 2));
+        return new Point(rng.Next(-1, 4),  rng.Next(-1, 4));
     }
 }
