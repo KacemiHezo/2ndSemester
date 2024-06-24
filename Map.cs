@@ -11,7 +11,7 @@ public class Map
         { CellType.WallCorner, '+'},
         { CellType.Teleport, '♨'},
         { CellType.Floor, '.'},
-        { CellType.Water, '⭕'},
+        { CellType.Water, '~'},
         { CellType.Shop, '💰'},
 
     }
