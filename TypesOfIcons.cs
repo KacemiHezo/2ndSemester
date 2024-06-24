@@ -5,8 +5,9 @@ public enum CellType
     WallVertical = 2,
     WallCorner = 3,
     Teleport = 4,
-    Floor = 5,
+    Grass = 5,
     Water = 6,
     Player = 7,
     Shop = 8,
+    Rod = 9,
 }
