@@ -83,6 +83,11 @@ public class Map
         return cellVisuals[GetCellAt(point)];
     }
 
+    public bool IsWater(Point point)
+    {
+        return (CellType)mapData[point.Y][point.X] == CellType.Water;
+    }
+
     public void Display(Point origin)
     {
         Origin = origin;

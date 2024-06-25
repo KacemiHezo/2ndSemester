@@ -1,27 +1,33 @@
-class Player : Character
+using System;
+using System.Collections.Generic;
+
+public class Player : Character
 {
     private Dictionary<ConsoleKey, Point> directions = new()
     {
-        { ConsoleKey.A, new Point(-1, 0)}
+        { ConsoleKey.A, new Point(-1, 0) },
+        { ConsoleKey.D, new Point(1, 0) },
+        { ConsoleKey.W, new Point(0, -1) },
+        { ConsoleKey.S, new Point(0, 1) },
+        { ConsoleKey.E, new Point(1, -1) }
     };
 
-    public Player(string visual, Point startingPosition): base(visual, startingPosition)
+    public Player(string visual, Point startingPosition) : base(visual, startingPosition)
     {
-        directions[ConsoleKey.D] = new Point(1, 0);
-        directions[ConsoleKey.W] = new Point(0, -1);
-        directions[ConsoleKey.S] = new Point(0, 1);
-        directions[ConsoleKey.E] = new Point(1, -1);
     }
 
     public override Point GetNextPosition()
     {
         Point nextPosition = new Point(Position);
-        
-        ConsoleKeyInfo pressedKey = Console.ReadKey(true);
-        if (directions.ContainsKey(pressedKey.Key))
+
+        if (Console.KeyAvailable)
         {
-            nextPosition.X += directions[pressedKey.Key].X;
-            nextPosition.Y += directions[pressedKey.Key].Y;
+            ConsoleKeyInfo pressedKey = Console.ReadKey(true);
+            if (directions.ContainsKey(pressedKey.Key))
+            {
+                nextPosition.X += directions[pressedKey.Key].X;
+                nextPosition.Y += directions[pressedKey.Key].Y;
+            }
         }
 
         return nextPosition;
