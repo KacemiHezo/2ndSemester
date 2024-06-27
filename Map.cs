@@ -1,9 +1,13 @@
+using System.Diagnostics;
+using System.Drawing;
+
 public class Map
 {
     public Point Origin { get; set;}
     public Point Size { get; }
 
-    private int[][] mapData;
+    private readonly int[][] mapData;
+    private readonly Dictionary<Point, Point> _teleports = new();
     private Dictionary<CellType, char> cellVisuals = new Dictionary<CellType, char>{
         { CellType.Empty, ' '},
         { CellType.WallHorizontal, '-'},
@@ -12,11 +16,11 @@ public class Map
         { CellType.Teleport, '♨'},
         { CellType.Grass, '.'},
         { CellType.Water, '~'},
-        { CellType.Shop, '💰'},
+        { CellType.Shop, 'x'},
         { CellType.Rod, '⚓'},
     };
 
-        private Dictionary<CellType, ConsoleColor> colorMap = new Dictionary<CellType, ConsoleColor> {
+    private Dictionary<CellType, ConsoleColor> colorMap = new Dictionary<CellType, ConsoleColor> {
         { CellType.Empty, ConsoleColor.Black},
         { CellType.WallCorner, ConsoleColor.DarkRed},
         { CellType.WallHorizontal, ConsoleColor.DarkRed},
@@ -25,15 +29,25 @@ public class Map
         { CellType.Grass, ConsoleColor.Green},
         { CellType.Water, ConsoleColor.DarkCyan},
         { CellType.Rod, ConsoleColor.DarkCyan},
+        { CellType.Shop, ConsoleColor.DarkYellow},
     };
 
     private CellType[] walkableCellTypes = new CellType[] { 
-        CellType.Floor, 
         CellType.Grass,
         CellType.Teleport,
         CellType.Shop,
         CellType.Rod,
     };
+
+    public bool IsPositionWalkable(Point point)
+    {
+        var cellType = GetCellTypeAt(point);
+        return IsCellWalkable(cellType);
+    }
+    public bool IsCellWalkable(CellType cellType)
+    {
+        return walkableCellTypes.Contains(cellType);
+    }
     
 
     public Map()
@@ -53,59 +67,89 @@ public class Map
             new []{0,0,0,0,0,3,1,3,0,0,3,1,3,0,0,0,0,},
         };
 
-        int y = mapData.Length;
-        int x = 0;
+        int columnCount = mapData.Length;
+        int rowCount = 0;
 
         foreach (int[] row in mapData)
         {
-            if (row.Length > x)
+            if (row.Length > rowCount)
             {
-                x = row.Length;
+                rowCount = row.Length;
             }
         }
 
-        Size = new Point(x, y);
+        Size = new Point(rowCount, columnCount);
         Origin = new Point(0, 0);
+
+        AddTeleportsPairCoords(new Point(6, 10), new Point(11,10));
     }
 
-    public CellType GetCellAt(Point point)
+    private void AddTeleportsPairCoords(Point teleport1, Point teleport2)
     {
-        return GetCellAt(point.X, point.Y);
+        _teleports.Add(teleport1, teleport2);
+        _teleports.Add(teleport2, teleport1);
     }
 
-    private CellType GetCellAt(int x, int y)
+    public bool IsTeleport(Point point)
+    {
+        return _teleports.ContainsKey(point);
+    }
+
+    public Point GetTeleportDestination(Point origin)
+    {
+        var teleportExists = _teleports.TryGetValue(origin, out var destination);
+        if (teleportExists)
+        {
+            return destination;
+        }
+
+        throw new Exception($"Position {origin.X}, {origin.Y} is not valid teleport");
+    }
+
+    public CellType GetCellTypeAt(Point point)
+    {
+        return GetCellTypeAt(point.X, point.Y);
+    }
+
+    private CellType GetCellTypeAt(int x, int y)
     {
         return (CellType)mapData[y][x];
     }
 
     public char GetCellVisualAt(Point point)
     {
-        return cellVisuals[GetCellAt(point)];
+        return cellVisuals[GetCellTypeAt(point)];
     }
 
     public bool IsWater(Point point)
     {
-        return (CellType)mapData[point.Y][point.X] == CellType.Water;
+        return GetCellTypeAt(point.X, point.Y) == CellType.Water;
+    }
+
+    public bool IsShop(Point point)
+    {
+        return GetCellTypeAt(point.X, point.Y) == CellType.Shop;
     }
 
     public void Display(Point origin)
     {
         Origin = origin;
         Console.CursorTop = origin.Y;
-        for (int y = 0; y < mapData.Length; y++)
+        for (int row = 0; row < mapData.Length; row++)
         {
-            Console.CursorLeft = origin.X;
-            for (int x = 0; x < mapData[y].Length; x++)
-            {
-                var cellValue = GetCellAt(x, y);
-                var cellVisual = cellVisuals[cellValue];
-                var cellColor = GetCellColorByValue(cellValue);
-                Console.ForegroundColor = cellColor;
-                Console.Write(cellVisual);
-                Console.ResetColor();
-            }
+            DrawRow(row, origin.X);
             Console.WriteLine();
         }
+    }
+
+    private ConsoleColor GetCellColor(CellType cellType)
+    {
+        return colorMap[cellType];
+    }
+
+    private char GetCellVisual(CellType cellType)
+    {
+        return cellVisuals[cellType];
     }
 
 
@@ -115,7 +159,7 @@ public class Map
         {
             if (point.X >= 0 && point.X < mapData[point.Y].Length)
             {
-                if (walkableCellTypes.Contains(GetCellAt(point)))
+                if (walkableCellTypes.Contains(GetCellTypeAt(point)))
                 {
                     return true;
                 }
@@ -125,5 +169,17 @@ public class Map
         return false;
     }
 
-
-    };
+    private void DrawRow(int row, int cursorLeft)
+    {
+        Console.CursorLeft = cursorLeft;
+        for (int column = 0; column < mapData[row].Length; column++)
+        {
+            var cellType = GetCellTypeAt(column, row);
+            var cellVisual = GetCellVisual(cellType);
+            var cellColor = GetCellColor(cellType);
+            Console.ForegroundColor = cellColor;
+            Console.Write(cellVisual);
+            Console.ResetColor();
+        }
+    }
+};
