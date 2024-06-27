@@ -1,6 +1,8 @@
+using System.Drawing;
+
+namespace Szluha;
+
 internal class KeyboardInputComponent : IInputComponent
-
-
 {    
     private Dictionary<ConsoleKey, Point> directions;
 
@@ -8,18 +10,18 @@ internal class KeyboardInputComponent : IInputComponent
     {
         directions = new()
         {
-            directions[ConsoleKey.A] = new Point(-1, 0),
-            directions[ConsoleKey.D] = new Point(1, 0),
-            directions[ConsoleKey.W] = new Point(0, -1),
-            directions[ConsoleKey.S] = new Point(0, 1),
-        }; //
+            {ConsoleKey.A, new Point(-1, 0)},
+            { ConsoleKey.D, new Point(1, 0) },
+            {ConsoleKey.W, new Point(0, -1)},
+            { ConsoleKey.S,  new Point(0, 1)},
+        }; 
     }
 
     public Point GetDirection()
     {
-        Point nextPosition = new Point(0, 0);
+        var nextPosition = new Point(0, 0);
         
-        ConsoleKeyInfo pressedKey = Console.ReadKey(true);
+        var pressedKey = Console.ReadKey(true);
         if (directions.ContainsKey(pressedKey.Key))
         {
             nextPosition.X = directions[pressedKey.Key].X;

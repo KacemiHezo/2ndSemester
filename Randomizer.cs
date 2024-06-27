@@ -1,3 +1,5 @@
+using System.Drawing;
+
 class RandomInputComponent : IInputComponent
 {
     Random rng;
